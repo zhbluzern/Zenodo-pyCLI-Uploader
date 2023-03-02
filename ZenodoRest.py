@@ -6,11 +6,24 @@ import os
 class Zenodo:
 
     # Initialisiere Zenodo-Klasse mit Zenodo-Record-ID, hole API-Key aus .env-File
-    def __init__(self, ZenodoId):
-        self.ZenodoId = ZenodoId
+    def __init__(self, ZenodoId=""):
         load_dotenv()
         self.ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+        if ZenodoId == "":
+            self.ZenodoId = self.createDeposit()
+        else:
+            self.ZenodoId = ZenodoId
 
+    # createDeposit-Methode - lege einen neuen leeren Datensatz an
+    def createDeposit(self):
+        headers = {"Content-Type": "application/json"}
+        params = {'access_token': self.ACCESS_TOKEN}
+        r = requests.post('https://zenodo.org/api/deposit/depositions',
+                        params=params,
+                        json={},
+                        headers=headers)
+        deposition_id = r.json()["id"]
+        return deposition_id
 
     # uploadFile Methode
     def uploadFile(self, fileName, filePath=""):
@@ -38,7 +51,3 @@ class Zenodo:
         r = requests.post(url, params={'access_token': self.ACCESS_TOKEN})
         return r
 
-#zenodo = Zenodo("7417971")
-#zenodo.uploadFile("Nummer11-01Budelacci.pdf", "C:\\Temp\\Nummer11\\")
-#data = zenodo.getRecordData()
-#print(data)
