@@ -33,6 +33,12 @@ class Zenodo:
         r = requests.post(url, data=data, files=files)
         return r
 
+    # setEdit-Methode - versetzt einen publizierten Datensatz in den Draft-Status zur Bearbeitung
+    def setEdit(self):
+        r = requests.post(f'https://zenodo.org/api/deposit/depositions/{self.ZenodoId}/actions/edit',
+                  params={'access_token': self.ACCESS_TOKEN})
+        return r
+
     # getRecordData-Methode holt den Metadatensatz zur weiteren Bearbeitung
     def getRecordData(self):
         r = requests.get(f"https://zenodo.org/api/deposit/depositions/{self.ZenodoId}?access_token={self.ACCESS_TOKEN}")
