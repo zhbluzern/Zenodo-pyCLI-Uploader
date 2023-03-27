@@ -20,7 +20,7 @@ for row in df.itertuples(index=True, name='Pandas'):
 
     
     #Hole Metadaten
-    #recordData = zenodo.getRecordData()
+    recordData = zenodo.getRecordData()
     
     ## Formatierte Ausgabe des JSON-Recods zur Kontrolle wenn nötig
     #json_formatted_str = json.dumps(recordData, indent=2)
