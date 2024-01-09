@@ -4,5 +4,5 @@ Dieses Python-Skript stellt unter Verwendung der Zenodo-Rest-API ein einfaches C
 
 # Beispiele
 
-* [examples/searchZenodo_isbnInArticles.py](searchZenodo_isbnInArticles.py) ändert Metadaten in Zenodo auf Basis einer vorangehenden REST-API-Abfrage. Gesucht werden Datensätze die eine ISBN-Nummer im Format einer ISSN eingetragen haben und gleichzeitig den resource subtype article besitzen.
-* [examples/xls2Zenodo.py](searchZenodo_isbnInArticles.py) auf Basis einer XLS-Datei mit bestehenden Zenodo-Record-IDs werden die Datensätze in Zenodo geöffnet und mit gegebenen Metadaten aus der xls-Datei ergänzt.
+* [searchZenodo_isbnInArticles.py](examples/searchZenodo_isbnInArticles.py) ändert Metadaten in Zenodo auf Basis einer vorangehenden REST-API-Abfrage. Gesucht werden Datensätze die eine ISBN-Nummer im Format einer ISSN eingetragen haben und gleichzeitig den resource subtype article besitzen.
+* [xls2Zenodo.py](examples/searchZenodo_isbnInArticles.py) auf Basis einer XLS-Datei mit bestehenden Zenodo-Record-IDs werden die Datensätze in Zenodo geöffnet und mit gegebenen Metadaten aus der xls-Datei ergänzt.
