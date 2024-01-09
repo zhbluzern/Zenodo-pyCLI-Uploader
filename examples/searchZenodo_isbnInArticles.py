@@ -2,6 +2,14 @@ import requests
 import ZenodoRest
 import json
 
+# ###########################################################################
+# Dieses Beispiel ändert Metadaten in Zenodo auf Basis einer
+# vorangehenden REST-API-Abfrage
+#
+# Gesucht werden Datensätze die eine ISBN-Nummer im Format einer ISSN
+# eingetragen haben und gleichzeitig den resource subtype article besitzen.
+# ###########################################################################
+
 #Zu beabeitende Datensätze über Rest-API holen
 #Grösse des Ergebnisset beachten (SIZE Parameter anpassen oder Iteration über next-Key)
 query = "imprint.isbn:/[0-9]{4}-[0-9]{3}[0-9X]{1}/ AND communities:lory* resource_type.subtype:article"
