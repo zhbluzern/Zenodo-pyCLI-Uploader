@@ -66,7 +66,8 @@ for row in df.itertuples(index=True, name='Pandas'):
     communityRequestCounter = 0
     for communitiy in communities:
         communityId = zenSearch.getCommunityIdBySlug(slug=communitiy)
-        metadata["metadata"]["communities"].append({"identifier":communityId})   
+        #metadata["metadata"]["communities"].append({"identifier":communityId})   
+        metadata["metadata"]["communities"].append({"identifier":communitiy})   
         communityRequestCounter += 1
     #print( metadata["metadata"]["communities"])
     #print(json.dumps(metadata, sort_keys=True, indent=4))
@@ -79,7 +80,7 @@ for row in df.itertuples(index=True, name='Pandas'):
     #Upload the File to the Draft
     print(zenodo.uploadFile(row.files,"hslu_sa/Files/").text)
     #Publish the File
-    print(zenodo.publishRecord())
+    #print(zenodo.publishRecord())
 
 
     #Accept the Communitie-Requests

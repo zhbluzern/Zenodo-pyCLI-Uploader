@@ -19,7 +19,7 @@ class Zenodo:
         else:
             self.ZenodoId = ZenodoId
 
-    # createDeposit-Methode - lege einen neuen leeren Datensatz an
+    # createDeposit-Methode - lege einen neuen leeren Datensatz an und gibt die Record-Id zurück
     def createDeposit(self):
         headers = {"Content-Type": "application/json"}
         params = {'access_token': self.ACCESS_TOKEN}
