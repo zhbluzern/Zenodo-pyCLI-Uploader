@@ -41,7 +41,7 @@ for row in df.itertuples(index=True, name='Pandas'):
         descriptionTxt = row.description
     #print(descriptionTxt)
     metadata["metadata"].update({"description": descriptionTxt})
-
+    
     #Title
     metadata["metadata"]["title"] = row.title
 
@@ -93,6 +93,6 @@ for row in df.itertuples(index=True, name='Pandas'):
         for hit in results["hits"]["hits"]:
             print(hit["id"])
             print(hit["type"])
-            print(hit["links"]["actions"]["accept"])
+            #print(hit["links"]["actions"]["accept"])
             print(zenodo.acceptRequest(hit["id"]).text)
-    break
+    #break
