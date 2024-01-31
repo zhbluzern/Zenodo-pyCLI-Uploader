@@ -80,7 +80,7 @@ for row in df.itertuples(index=True, name='Pandas'):
     #Upload the File to the Draft
     print(zenodo.uploadFile(row.files,"hslu_sa/Files/").text)
     #Publish the File
-    #print(zenodo.publishRecord())
+    print(zenodo.publishRecord())
 
 
     #Accept the Communitie-Requests
