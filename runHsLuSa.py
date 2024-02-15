@@ -21,7 +21,7 @@ for row in df.itertuples(index=True, name='Pandas'):
 
     #Fetch the metdata
     #List of Creators
-    creators = row.creators.split("\n")
+    creators = row.creators.replace('\n\n', '\n').split("\n")
     metadata["metadata"].update({"creators": []})
     for creator in creators:
         creatorDict = {}
@@ -62,7 +62,7 @@ for row in df.itertuples(index=True, name='Pandas'):
     elif row.resource_type == "publication-thesis":
         metadata["metadata"]["upload_type"] = "publication"
         metadata["metadata"]["publication_type"] = "thesis"  
-        #metadata["custom_fields"]["thesis:university"] = "Hochschule Luzern – Soziale Arbeit"   
+        metadata["metadata"]["thesis_university"] = "Hochschule Luzern – Soziale Arbeit"   
     
     metadata["metadata"]["access_right"] = "open"
     metadata["metadata"]["license"] = "cc-by-nc-nd-4.0"
@@ -105,4 +105,4 @@ for row in df.itertuples(index=True, name='Pandas'):
     
     #OutPut Dataframe enriched with DOI
     df.to_excel("hslu_sa/ExportData.xlsx", index=False, engine="openpyxl")
-    break
+    #break
