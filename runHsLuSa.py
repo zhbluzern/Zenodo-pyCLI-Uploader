@@ -17,7 +17,7 @@ df["zenodoId"] = None
 #Iterate through xls-File
 for row in df.itertuples(index=True, name='Pandas'):
     #Build the empty deposition metadata dict
-    metadata = {"metadata" : {}}
+    metadata = {"metadata" : {}, "custom_fields" : {}}
 
     #Fetch the metdata
     #List of Creators
