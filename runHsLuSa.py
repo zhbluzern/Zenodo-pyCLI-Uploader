@@ -12,6 +12,7 @@ print(df.head())
 #Initialize ZenodoSearch
 zenSearch = ZenodoRest.ZenodoSearch()
 
+df["zenodoId"] = None
 #Iterate through xls-File
 #Iterate through xls-File
 for row in df.itertuples(index=True, name='Pandas'):
@@ -55,8 +56,13 @@ for row in df.itertuples(index=True, name='Pandas'):
     metadata["metadata"]["imprint_publisher"] = row.publisher
 
     #metadata["metadata"]["resource_type"] = ({"id": row.resource_type, "title": {"de":"Bericht","en":"Report"}})
-    metadata["metadata"]["upload_type"] = "publication"
-    metadata["metadata"]["publication_type"] = "report"
+    if row.resource_type == "publication-report":
+        metadata["metadata"]["upload_type"] = "publication"
+        metadata["metadata"]["publication_type"] = "report"
+    elif row.resource_type == "publication-thesis":
+        metadata["metadata"]["upload_type"] = "publication"
+        metadata["metadata"]["publication_type"] = "thesis"  
+        metadata["custom_fields"]["thesis:university"] = "Hochschule Luzern – Soziale Arbeit"   
     
     metadata["metadata"]["access_right"] = "open"
     metadata["metadata"]["license"] = "cc-by-nc-nd-4.0"
@@ -75,6 +81,7 @@ for row in df.itertuples(index=True, name='Pandas'):
     #Create a new Draft Record
     zenodo = ZenodoRest.Zenodo()
     print(zenodo.ZenodoId)
+    df.at[row.Index, 'zenodoId'] = zenodo.ZenodoId
     #Upload the Metadata to the Draft
     print(zenodo.putRecordData(metadata).text)
     #Upload the File to the Draft
@@ -95,4 +102,7 @@ for row in df.itertuples(index=True, name='Pandas'):
             print(hit["type"])
             #print(hit["links"]["actions"]["accept"])
             print(zenodo.acceptRequest(hit["id"]).text)
-    #break
+    
+    #OutPut Dataframe enriched with DOI
+    df.to_excel("hslu_sa/ExportData.xlsx", index=False, engine="openpyxl")
+    break

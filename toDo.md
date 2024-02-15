@@ -9,3 +9,5 @@
 [ ] Description-Handling mit Zeilenumbrüchen in xls checken (Zeileumbrüche, die aus PDF-Kopie entstehen)
 [ ] `setup.py` anlegen
 [ ] Write DOI in xls File
+
+[ ] bei leerer Zeile in Creator -> nachsehen ob creator nach splitting leer, dann ignorieren.
