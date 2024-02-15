@@ -17,7 +17,7 @@ df["zenodoId"] = None
 #Iterate through xls-File
 for row in df.itertuples(index=True, name='Pandas'):
     #Build the empty deposition metadata dict
-    metadata = {"metadata" : {}, "custom_fields" : {}}
+    metadata = {"metadata" : {}}
 
     #Fetch the metdata
     #List of Creators
@@ -62,7 +62,7 @@ for row in df.itertuples(index=True, name='Pandas'):
     elif row.resource_type == "publication-thesis":
         metadata["metadata"]["upload_type"] = "publication"
         metadata["metadata"]["publication_type"] = "thesis"  
-        metadata["custom_fields"]["thesis:university"] = "Hochschule Luzern – Soziale Arbeit"   
+        #metadata["custom_fields"]["thesis:university"] = "Hochschule Luzern – Soziale Arbeit"   
     
     metadata["metadata"]["access_right"] = "open"
     metadata["metadata"]["license"] = "cc-by-nc-nd-4.0"
