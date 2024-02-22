@@ -5,11 +5,13 @@ import src.ZenodoSearch as ZenodoSearch
 import re
 from datetime import datetime
 import json 
-
+import pandas as pd
 
 alma = handleAlma.readAlma()
 recs = alma.getRecordsViaSRU(query="alma.all_for_ui=\"*edoc.zhbluzern.ch/*\"")
+resultSet = []
 for rec in recs:
+    resultDet = {}
     #Build the empty deposition metadata dict
     metadata = {"metadata" : {}}
     metadata["metadata"]["upload_type"] = "publication"
@@ -24,16 +26,19 @@ for rec in recs:
     mmsId_IZ = alma.getMetadataByXpath(rec, ".//slim:controlfield[@tag='001']")
     print(mmsId_IZ[0].text)
     metadata["metadata"]["related_identifiers"] = [{"identifier" : f"https://rzs.swisscovery.slsp.ch/permalink/41SLSP_RZS/lim8q1/alma{mmsId_IZ[0].text}", "relation": "hasMetadata"}]
+    resultDet["mmsId_IZ"] = mmsId_IZ[0].text
 
     mmsId_NZ = alma.getMetadataByXpath(rec, ".//slim:datafield[@tag='035']/slim:subfield[@code='a'][starts-with(text(),'(EXLNZ-41SLSP_NETWORK)')]")
     nzID = (re.sub("\(EXLNZ-41SLSP_NETWORK\)","",mmsId_NZ[0].text))
     print(nzID)
     metadata["metadata"]["related_identifiers"].append({"identifier" : f"https://swisscollections.ch/Record/{nzID}", "relation": "hasMetadata"})
+    resultDet["mmsId_NZ"] = nzID
 
     title = alma.getMetadataByXpath(rec, ".//slim:datafield[@tag='245']/slim:subfield[@code='a']")
     print(title[0].text)
     metadata["metadata"]["title"] = title[0].text
     description = f"<p>Findbuch zum {title[0].text}</p>"
+    resultDet["title"] = title[0].text
 
     desc = alma.getMetadataByXpath(rec, ".//slim:datafield[@tag='520']/slim:subfield[@code='a']")
     print(desc[0].text)
@@ -52,7 +57,7 @@ for rec in recs:
     umfang = alma.getMetadataByXpath(rec, ".//slim:datafield[@tag='300']/slim:subfield[@code='a']")
     if umfang != []:
         print(f"Umfang: {umfang[0].text}")
-        description = f"{description}<p>{desc[0].text}</p>"
+        description = f"{description}<p>Umfang: {umfang[0].text}</p>"
     
     metadata["metadata"]["description"]  = description
 
@@ -96,6 +101,8 @@ for rec in recs:
     #Create a new Deposit/Draft
     zenodo = ZenodoRest.Zenodo()
     print(zenodo.ZenodoId)
+    resultDet["zenodoId"] = zenodo.ZenodoId
+    resultSet.append(resultDet)
 
     print(zenodo.putRecordData(metadata).text)
 
@@ -126,4 +133,7 @@ for rec in recs:
         print(hit["type"])
         #print(hit["links"]["actions"]["accept"])
         print(zenodo.acceptRequest(hit["id"]).text)
-    break
+    #break
+
+df = pd.DataFrame.from_dict(resultSet)
+df.to_excel("nlv/Output.xlsx", index=False, engine="openpyxl")
