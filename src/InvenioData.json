@@ -1,0 +1,15 @@
+{
+    "access": {
+      "record": "public",
+      "files": "public"
+    },
+    "files": {
+      "enabled": true
+    },
+    "metadata": {
+      "creators": [],
+      "publication_date": "",
+      "resource_type": { "id": "" },
+      "title": ""
+    }
+}

@@ -1,5 +1,6 @@
 import pandas as pd
-import ZenodoRest
+import src.ZenodoRest as ZenodoRest
+import src.ZenodoSearch as ZenodoSearch
 import src.readDocx as docx
 import json
 
@@ -10,7 +11,7 @@ df = pd.DataFrame(data)
 print(df.head())
 
 #Initialize ZenodoSearch
-zenSearch = ZenodoRest.ZenodoSearch()
+zenSearch = ZenodoSearch.ZenodoSearch()
 
 df["zenodoId"] = None
 #Iterate through xls-File
