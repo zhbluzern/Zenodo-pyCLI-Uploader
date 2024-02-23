@@ -17,9 +17,10 @@ class Invenio:
         self.API_URL = os.getenv("API_URL")
         self.HEADERS = ({"Content-Type" : "application/json", "Authorization" : f"Bearer {self.ACCESS_TOKEN}"})
         self.recordSchema = Invenio.resetRecord(self)
-        if recordId != "":
+        self.recordId = recordId
+        if self.recordId != "":
             self.recordId = recordId
-            self.draft = Invenio.getDraft(recordId)
+            self.draft = Invenio.getDraft(self.recordId)
 
     def resetRecord(self):
         with open('src/InvenioData.json', 'r') as dataFile:
@@ -55,11 +56,30 @@ class Invenio:
         r = requests.post(url=apiUrl, headers=self.HEADERS)
         return r.json()
 
-    def getDraft(self,recordId):
+    def editRecord(self, recordId):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
-        r = requests.get(url=apiUrl,header=self.HEADERS)
+        print(apiUrl)
+        r = requests.post(url=apiUrl, headers=self.HEADERS)
         return r.json()
-    
+
+    def updateRecord(self, recordId, data):
+        apiUrl = f"{self.API_URL}records/{recordId}/draft"
+        print(apiUrl)
+        r = requests.put(url=apiUrl, headers=self.HEADERS, json=data)
+        return r.json()
+            
+    def getDraft(self, recordId):
+        apiUrl = f"{self.API_URL}records/{recordId}/draft"
+        print(apiUrl)
+        r = requests.get(url=apiUrl, headers=self.HEADERS)
+        return r.json()
+
+    def getRecord(self, recordId):
+        apiUrl = f"{self.API_URL}records/{recordId}"
+        print(apiUrl)
+        r = requests.get(url=apiUrl, headers=self.HEADERS)
+        return r.json()   
+
     def setPersonOrOrg(self, name, type="personal",  splitChar="", persIdScheme="", persId="", affiliation="", role=""):
         personOrOrg = {"person_or_org": { "type": type, "name": name} }
         if type=="personal": 

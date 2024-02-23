@@ -1,6 +1,6 @@
 .env
 __pycache__/
-test.py
+test*
 hslu_sa/
 Files/
 nlv/
