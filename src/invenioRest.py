@@ -64,7 +64,7 @@ class Invenio:
 
     def updateRecord(self, recordId, data):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
-        print(apiUrl)
+        #print(apiUrl)
         r = requests.put(url=apiUrl, headers=self.HEADERS, json=data)
         return r.json()
             
@@ -74,7 +74,7 @@ class Invenio:
         r = requests.get(url=apiUrl, headers=self.HEADERS)
         return r.json()
 
-    def getRecord(self, recordId):
+    def getRecord(self, recordId=""):
         apiUrl = f"{self.API_URL}records/{recordId}"
         print(apiUrl)
         r = requests.get(url=apiUrl, headers=self.HEADERS)
