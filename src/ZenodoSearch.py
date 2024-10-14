@@ -22,3 +22,8 @@ class ZenodoSearch:
             for hit in results["hits"]["hits"]:
                 print(f"searched for community {slug} and matched slug {hit['slug']} with id {hit['id']}")
                 return hit["id"]
+
+if __name__ == "__main__":
+    zenSearch = ZenodoSearch()
+    communityId = zenSearch.getCommunityIdBySlug("lory_hslu_dfk_bnl")
+    print(communityId)

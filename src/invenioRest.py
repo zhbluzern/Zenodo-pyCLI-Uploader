@@ -18,16 +18,19 @@ class Invenio:
         self.HEADERS = ({"Content-Type" : "application/json", "Authorization" : f"Bearer {self.ACCESS_TOKEN}"})
         self.recordSchema = Invenio.resetRecord(self)
         self.recordId = recordId
-        if self.recordId != "":
-            self.recordId = recordId
-            self.draft = Invenio.getDraft(self.recordId)
+        # if self.recordId != "":
+        #     self.recordId = recordId
+        #     self.draft = Invenio.getDraft(self)
 
     def resetRecord(self):
-        with open('src/InvenioData.json', 'r') as dataFile:
-            InvenioData=dataFile.read()
-        self.recordSchema = json.loads(InvenioData)
+        self.recordSchema = self.getMinimalRecord()
         return self.recordSchema
 
+    def getMinimalRecord(self):
+        with open('src/InvenioData.json', 'r') as dataFile:
+            InvenioData=dataFile.read()
+        return json.loads(InvenioData)
+    
     def createDraft(self, data={}):
         apiUrl = f"{self.API_URL}records"
         r = requests.post(url=apiUrl, headers=self.HEADERS, json=data )
@@ -58,17 +61,17 @@ class Invenio:
 
     def editRecord(self, recordId):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
-        print(apiUrl)
+        #print(apiUrl)
         r = requests.post(url=apiUrl, headers=self.HEADERS)
+        print(r.status_code)
         return r.json()
 
     def updateRecord(self, recordId, data):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
-        #print(apiUrl)
-        r = requests.put(url=apiUrl, headers=self.HEADERS, json=data)
+        r = requests.put(url=apiUrl, headers=self.HEADERS, data=json.dumps(data))
         return r.json()
             
-    def getDraft(self, recordId):
+    def getDraft(self, recordId=""):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
         print(apiUrl)
         r = requests.get(url=apiUrl, headers=self.HEADERS)
@@ -80,12 +83,16 @@ class Invenio:
         r = requests.get(url=apiUrl, headers=self.HEADERS)
         return r.json()   
 
-    def setPersonOrOrg(self, name, type="personal",  splitChar="", persIdScheme="", persId="", affiliation="", role=""):
+    def setPersonOrOrg(self, name, type="personal",  splitChar="", persIdScheme="", persId="", affiliation="", role="", familyNameFirst=True):
         personOrOrg = {"person_or_org": { "type": type, "name": name} }
         if type=="personal": 
             namePart = name.split(splitChar)
-            personOrOrg["person_or_org"]["family_name"] = namePart[0]
-            personOrOrg["person_or_org"]["given_name"] = namePart[1]
+            if familyNameFirst == True:
+                personOrOrg["person_or_org"]["family_name"] = namePart[0]
+                personOrOrg["person_or_org"]["given_name"] = namePart[1]
+            else:
+                personOrOrg["person_or_org"]["family_name"] = namePart[1]
+                personOrOrg["person_or_org"]["given_name"] = namePart[0]               
             if affiliation != "":
                 personOrOrg["person_or_org"]["affiliations"] = [{"name":affiliation}]
 
@@ -110,10 +117,22 @@ class Invenio:
         url = f"{self.API_URL}requests"
         r = requests.get(url=url, params={'access_token': self.ACCESS_TOKEN, 'q' : queryString})
         return r
-
+    
+    def addRectoCommunity(self, recordId, data):
+        url = f"{self.API_URL}records/{recordId}/communities"
+        print(url)
+        headers = {"Content-Type": "application/json"}
+        r = requests.post(url, params={'access_token': self.ACCESS_TOKEN}, data=json.dumps(data), headers=headers)
+        return r
+    
+    def removeRecFromCommunity(self, recordId, data):
+        url = f"{self.API_URL}records/{recordId}/communities"
+        headers = {"Content-Type": "application/json"}
+        r = requests.delete(url, params={'access_token': self.ACCESS_TOKEN}, data=json.dumps(data), headers=headers)
+        return r
 
 if __name__ == "__main__":
-    (os.chdir("src"))
+    #(os.chdir("src"))
     zenodo = Invenio()
 
     """
@@ -140,12 +159,15 @@ if __name__ == "__main__":
     zenodo.resetRecord()
     print(zenodo.recordSchema)
     """
-    recordId = "30420"
-    req = zenodo.searchRequests(f"topic.record:{recordId}")
-    results = req.json()
-    print(results)
-    for hit in results["hits"]["hits"]:
-        print(hit["id"])
-        print(hit["type"])
-        #print(hit["links"]["actions"]["accept"])
-        print(zenodo.acceptRequest(hit["id"]).text)
+    # recordId = "30420"
+    # req = zenodo.searchRequests(f"topic.record:{recordId}")
+    # results = req.json()
+    # print(results)
+    # for hit in results["hits"]["hits"]:
+    #     print(hit["id"])
+    #     print(hit["type"])
+    #     #print(hit["links"]["actions"]["accept"])
+    #     print(zenodo.acceptRequest(hit["id"]).text)
+
+    recordId = "117334"
+    zenodo.addRectoCommunity(recordId,{"communities":[{"id":"lory_hslu_dfk_bnl"}, {"id":"lory"}, {"id":"lory_hslu"}]})
