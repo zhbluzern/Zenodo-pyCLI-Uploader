@@ -13,16 +13,16 @@ def getFileName(fileUrl):
     #print(a.path)                    
     return (os.path.basename(a.path))
 
-def uploadFile(zenodo, listFiles, newRecord):
+def uploadFile(zenodo, listFiles, newRecord, filePath=""):
     uploadFiles = [os.path.basename(file) for file in listFiles]
-    listOfFiles = []
+    listOfFilesInvenioData = []
     for file in uploadFiles:
-        listOfFiles.append({"key":file})
+        listOfFilesInvenioData.append({"key":file})
         #handleFiles.downloadFile(fileUrl[0].text, localPath="nlv/Files")
-    fileDraft = zenodo.startDraftFiles(newRecord["id"], data=listOfFiles)
+    fileDraft = zenodo.startDraftFiles(newRecord["id"], data=listOfFilesInvenioData)
 
     for filename in uploadFiles:
-        with open(f"bnl/Files/{filename}", 'rb') as f:
+        with open(f"{filePath}/{filename}", 'rb') as f:
             data = f.read()
         fileUpload = zenodo.uploadFileContent(newRecord["id"], fileName=filename, fileContent=data)
         #print(fileUpload)

@@ -94,10 +94,9 @@ class Invenio:
                 personOrOrg["person_or_org"]["family_name"] = namePart[1]
                 personOrOrg["person_or_org"]["given_name"] = namePart[0]               
             if affiliation != "":
-                personOrOrg["person_or_org"]["affiliations"] = [{"name":affiliation}]
-
+                personOrOrg["affiliations"] = [{"name":affiliation}]
             if role != "":
-                personOrOrg["person_or_org"]["role"] = {"id": role }
+                personOrOrg["role"] = {"id": role }
 
         if persId != "" and persIdScheme != "":
                 personOrOrg["person_or_org"]["identifiers"] = [{"scheme": persIdScheme, "identifier": persId}]
