@@ -60,6 +60,7 @@ class Invenio:
         r = requests.post(url=apiUrl, headers=self.HEADERS)
         return r.json()
 
+    # Creates a draft for an already published record (this is the first step to update a record)
     def editRecord(self, recordId):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
         print(apiUrl)
@@ -74,16 +75,15 @@ class Invenio:
             
     def getDraft(self, recordId=""):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
-        print(apiUrl)
         r = requests.get(url=apiUrl, headers=self.HEADERS)
         return r.json()
 
     def getRecord(self, recordId=""):
         apiUrl = f"{self.API_URL}records/{recordId}"
-        print(apiUrl)
         r = requests.get(url=apiUrl, headers=self.HEADERS)
         return r.json()   
 
+    # Export the Record in several formats as available in the UI (e.g. json, json-ld, datacite-json etc.)
     def exportRecord(self, recordId, format="json"):
         apiUrl = f"{self.zenodoBaseUrl}records/{recordId}/export/{format}"
         #print (apiUrl)
