@@ -15,7 +15,7 @@ class Invenio:
         load_dotenv()
         self.ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
         self.API_URL = os.getenv("API_URL")
-        self.zenodoBaseUrl = re.sub("api\/","",self.API_URL)
+        self.BASE_URL = re.sub("api\/","",self.API_URL)
         self.HEADERS = ({"Content-Type" : "application/json", "Authorization" : f"Bearer {self.ACCESS_TOKEN}"})
         self.recordSchema = Invenio.resetRecord(self)
         self.recordId = recordId
@@ -70,6 +70,7 @@ class Invenio:
 
     def updateRecord(self, recordId, data):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
+        print(apiUrl)
         r = requests.put(url=apiUrl, headers=self.HEADERS, data=json.dumps(data))
         return r.json()
             
@@ -85,10 +86,13 @@ class Invenio:
 
     # Export the Record in several formats as available in the UI (e.g. json, json-ld, datacite-json etc.)
     def exportRecord(self, recordId, format="json"):
-        apiUrl = f"{self.zenodoBaseUrl}records/{recordId}/export/{format}"
+        apiUrl = f"{self.BASE_URL}records/{recordId}/export/{format}"
         #print (apiUrl)
         r = requests.get(url=apiUrl, headers=self.HEADERS)
-        return r.json()
+        record = r.json()
+        # #Remove media_files in Old Data to avoid validation error
+        record.pop("media_files")
+        return record
 
     def setPersonOrOrg(self, name, type="personal",  splitChar="", persIdScheme="", persId="", affiliation="", role="", familyNameFirst=True):
         personOrOrg = {"person_or_org": { "type": type, "name": name} }
