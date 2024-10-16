@@ -3,7 +3,7 @@ import requests
 from dotenv import load_dotenv
 import os
 from datetime import datetime
-
+import re
 
 # Invenio REST-API Class
 #   combines all methods which requires authentication (ACCESS-TOKEN)
@@ -15,6 +15,7 @@ class Invenio:
         load_dotenv()
         self.ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
         self.API_URL = os.getenv("API_URL")
+        self.zenodoBaseUrl = re.sub("api\/","",self.API_URL)
         self.HEADERS = ({"Content-Type" : "application/json", "Authorization" : f"Bearer {self.ACCESS_TOKEN}"})
         self.recordSchema = Invenio.resetRecord(self)
         self.recordId = recordId
@@ -61,7 +62,7 @@ class Invenio:
 
     def editRecord(self, recordId):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
-        #print(apiUrl)
+        print(apiUrl)
         r = requests.post(url=apiUrl, headers=self.HEADERS)
         print(r.status_code)
         return r.json()
@@ -82,6 +83,12 @@ class Invenio:
         print(apiUrl)
         r = requests.get(url=apiUrl, headers=self.HEADERS)
         return r.json()   
+
+    def exportRecord(self, recordId, format="json"):
+        apiUrl = f"{self.zenodoBaseUrl}records/{recordId}/export/{format}"
+        #print (apiUrl)
+        r = requests.get(url=apiUrl, headers=self.HEADERS)
+        return r.json()
 
     def setPersonOrOrg(self, name, type="personal",  splitChar="", persIdScheme="", persId="", affiliation="", role="", familyNameFirst=True):
         personOrOrg = {"person_or_org": { "type": type, "name": name} }
