@@ -63,7 +63,7 @@ class Invenio:
     # Creates a draft for an already published record (this is the first step to update a record)
     def editRecord(self, recordId):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
-        print(apiUrl)
+        #print(apiUrl)
         r = requests.post(url=apiUrl, headers=self.HEADERS)
         print(r.status_code)
         return r.json()
