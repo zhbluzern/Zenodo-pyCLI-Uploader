@@ -9,7 +9,7 @@ import pandas as pd
 
 
 #Read a Metadata-Excel-File
-data = pd.read_excel(r'lory_zhb_test.xlsx')
+data = pd.read_excel(r'examples/lory_zhb_test.xlsx')
 df = pd.DataFrame(data)
 initColumns = df.columns
 
@@ -20,8 +20,8 @@ print(df.head())
 for index, row in df.iterrows():
 
     #create note
-    dlza_note = {
-        "description": "Langzeitarchivierung durch : "+row["organisation"]+" - "+row["signature"]+" - "+row["last_changed"][0:10],
+    dlza_notes = [{
+        "description": "Langzeitarchivierung durch: "+row["organisation"]+" - "+row["signature"]+" - "+row["last_changed"][0:10],
         "type": {
             "id": "notes",
             "title": {
@@ -29,12 +29,15 @@ for index, row in df.iterrows():
                 "en": "Notes"
             }
         }
-    }
-    dlza_identifier = {
+    }]
+
+    dlza_identifiers = [{
         "identifier": row["signature"],
         "scheme": "other"
-        
-    } 
+    },{
+        "identifier": row["signature"],
+        "scheme": "other"
+    }]
 
     recordId = row["signature"].split("_")[-1]
     print(recordId)
@@ -48,17 +51,22 @@ for index, row in df.iterrows():
     #record["metadata"].append("additional_descriptions: "+str(dlza_note))
     if "additional_descriptions" not in record["metadata"]:
         record["metadata"]["additional_descriptions"] = []
-    record["metadata"]["additional_descriptions"].append(dlza_note)
+    for dlza_note in [dlza_note for dlza_note in dlza_notes if dlza_note not in record["metadata"]["additional_descriptions"]]:
+        record["metadata"]["additional_descriptions"].append(dlza_note)
 
-    print(record["metadata"]["additional_descriptions"][-1]["description"])
+    print(record["metadata"]["additional_descriptions"])
 
     if "identifiers" not in record["metadata"]:
         record["metadata"]["identifiers"] = []
-    record["metadata"]["identifiers"].append(dlza_identifier)
+    for dlza_identifier in [dlza_identifier for dlza_identifier in dlza_identifiers if dlza_identifier not in record["metadata"]["identifiers"]]:
+        record["metadata"]["identifiers"].append(dlza_identifier)
 
-    print(record["metadata"]["identifiers"][-1]["identifier"])
-    #print(record["metadata"])
+    print(record["metadata"]["identifiers"])
+        
+
+
+    print(record["metadata"])
 
     zenodo.updateRecord(recordId, record)
-    print(zenodo.publishDraft(recordId))    
+    zenodo.publishDraft(recordId)    
     #break

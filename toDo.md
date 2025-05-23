@@ -1,5 +1,6 @@
 # ToDo
 
+[ ] Parse Status of Publishing and/or Updateing in Batch-Process to avoid records in draft state
 [x] Change the REST-API structure from `deposit` to `draft` according to the new Invenio RDM REST-API definition.
 
 ## HSLU

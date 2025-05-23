@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 import re
 
-data = pd.read_excel(r'nlv/Findbuecher_202410_Zenodo.xlsx')
+data = pd.read_excel(r'nlv/Findmittel_neu_20241120.xlsx')
 df = pd.DataFrame(data)
 df = df.astype('string')
 
@@ -29,7 +29,8 @@ for index, row in df.iterrows():
         record["metadata"]["creators"].append(creator)
         record["metadata"]["rights"] = [{"id": "cc-by-4.0"}]
         record["metadata"]["title"] = row.title
-        description = f"<p>{row.title}</p>"
+        description = ""
+        #description = f"<p>{row.title}</p>" # commented duplicate title row in description by 2024-11-20
 
         record["metadata"]["related_identifiers"] = []
         record["metadata"]["related_identifiers"].append({"identifier" : f"https://rzs.swisscovery.slsp.ch/permalink/41SLSP_RZS/lim8q1/alma{row.mmsID}", "relation_type": {"id": "hasmetadata"}, "scheme": "url"})
@@ -57,6 +58,10 @@ for index, row in df.iterrows():
             print(f"Umfang: {umfang[0].text}")
             description = f"{description}<p>Umfang: {umfang[0].text}</p>"
         
+        if description == "":
+            #If description is empty; fill it with duplicate title statement
+            description = f"<p>{row.title}</p>"
+            
         record["metadata"]["description"]  = description   
 
         subjectCreatorNode = alma.getMetadataByXpath(rec[0], ".//slim:datafield[@tag='100']/slim:subfield[@code='4' and text()='cre']/..")

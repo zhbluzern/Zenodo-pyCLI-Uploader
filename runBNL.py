@@ -6,18 +6,19 @@ import src.handleInvenio as handleInvenio
 import bnl.bnlParser as bnlParser
 import json
 import re
+from datetime import datetime
 
 #Read a Metadata-Excel-File
-data = pd.read_excel(r'bnl/BNL_Liste-OA_202409.xlsx')
+data = pd.read_excel(r'bnl/BNL_Liste_20241017.xlsx',  header=0)
 df = pd.DataFrame(data)
 initColumns = df.columns
 
-#print(df.head())
+df = df[df['zenodoId'].isna()] #filter to _new_ records (which aren't uploaded to Zenodo yoet)
 #df = df.iloc[10:11,:] #Montaging
 #df = df.iloc[31:32,:] #To all arts
 #df = df.iloc[[10, 13, 31], :] #three selected articles as test sample
 #df = df.iloc[[9], :]
-
+#print(df.head())
 
 for index, row in df.iterrows():
     
@@ -61,9 +62,9 @@ for index, row in df.iterrows():
         # creatorDict["family_name"] = nameParts[0]
         # creatorDict["given_name"] = nameParts[1]
         # record["metadata"]["creators"].append(creatorDict)
-        record["metadata"]["creators"].append(zenodo.setPersonOrOrg(name=creator,splitChar=",",familyNameFirst=False))
+        record["metadata"]["creators"].append(zenodo.setPersonOrOrg(name=creator,splitChar=",",familyNameFirst=True))
     
-    if pd.notna(row.organisation):
+    if hasattr(row, 'organisation') and pd.notna(row.organisation):
         record["metadata"]["creators"].append(zenodo.setPersonOrOrg(name=row.organisation, type="organizational"))
 
     record["metadata"]["title"]=row.title
@@ -114,7 +115,7 @@ for index, row in df.iterrows():
     print(record)
     
     newRecord = zenodo.createDraft(record)
-    handleFiles.uploadFile(zenodo,listOfFiles,newRecord)
+    handleFiles.uploadFile(zenodo,listOfFiles,newRecord,"bnl/Files/")
     print(newRecord)
     #break
     
@@ -124,8 +125,8 @@ for index, row in df.iterrows():
     
     ### Add Communities
     zenodo.addRectoCommunity(newRecord["id"],{"communities":[{"id":"lory_hslu_dfk_bnl"}, {"id":"lory"}, {"id":"lory_hslu"}, {"id":"lory_hslu_d_und_k"}]})
-    #zenodo.addRectoCommunity(newRecord["id"],{"communities":[{"id":"lory_hslu_dfk_bnl"}]})
     
     #break
-    
-df.to_excel("bnl/ExportData.xlsx", index=False, engine="openpyxl")
+
+currentDateStr = datetime.now().strftime("%Y%m%d")    
+df.to_excel(f"bnl/ExportData_{currentDateStr}.xlsx", index=False, engine="openpyxl")
