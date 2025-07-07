@@ -1,4 +1,3 @@
-# test heka / 23.5.25
 
 import src.invenioRest as InvenioRest
 import src.handleFiles as handleFiles
@@ -6,22 +5,25 @@ import src.handleInvenio as handleInvenio
 import json
 import re
 import pandas as pd
+import time
 
 
-#Read a Metadata-Excel-File
-data = pd.read_excel(r'examples/lory_zhb_test.xlsx')
+# Read a Metadata-Excel-File into a DataFrame
+
+input_file = 'lory_zhb_inventory.xlsx'
+data = pd.read_excel(input_file)
 df = pd.DataFrame(data)
 initColumns = df.columns
 
-print(df.head())
-#df = df.iloc[[10, 13, 31], :] #three selected articles as test sample
-#df = df.iloc[[9], :] #one selected article as test sample
 
 for index, row in df.iterrows():
 
-    #create note
+    #create dlza note
+
+    dlza_line = f"Langzeitarchivierung durch: {row['organisation']} - {row['signature']} - {row['last_changed'][0:10]}"
+
     dlza_notes = [{
-        "description": "Langzeitarchivierung durch: "+row["organisation"]+" - "+row["signature"]+" - "+row["last_changed"][0:10],
+        "description": dlza_line,
         "type": {
             "id": "notes",
             "title": {
@@ -30,43 +32,98 @@ for index, row in df.iterrows():
             }
         }
     }]
+    #create dlza related identifiers
+    dlza_identifier = row["signature"]
 
-    dlza_identifiers = [{
-        "identifier": row["signature"],
-        "scheme": "other"
-    },{
-        "identifier": row["signature"],
+    dlza_related_identifiers = [{
+        "identifier": dlza_identifier,
+        "relation_type": {
+            "id": "isidenticalto",
+            "title": {
+                "de": "Ist identisch mit",
+                "en": "Is identical to"
+            } 
+        },
+        "resource_type": {
+            "id": "dataset",
+            "title": {
+                "de": "Datensatz",
+                "en": "Dataset"
+            }
+        },
         "scheme": "other"
     }]
 
-    recordId = row["signature"].split("_")[-1]
-    print(recordId)
-    #create Zenodo-Record
+    # get the zenodo record ID from the identifiers column
+    identifier_list =  row["identifiers"]
+
+    # split the identifiers string into a list
+    items = identifier_list.strip("[]").split(", ")
+
+    # Search for entry starting with "zenodo:"
+    for item in items:
+        item = item.strip("'\"")  # Entfernt einfache oder doppelte Anführungszeichen
+        if item.startswith("zenodo:"):
+            recordId = item.split(":")[1]
+            #print("Record ID:", recordId)
+            break
+
+    if not recordId:
+        print(f"Row {index}: No Zenodo record ID found in identifiers column.")
+        with open("error_log.txt", "a") as error_file:
+            error_file.write(f"Row {index}: No Zenodo record ID found in identifiers column, update manually: {dlza_line} - {dlza_identifier}\n")
+        continue
+
+    print("\n------------------------------\n")
+    print(f"Row {index} - Record id: {recordId}")
+
+    # create Zenodo-Record
     zenodo = InvenioRest.Invenio()
-    #record = zenodo.recordSchema
    
     zenodo.editRecord(recordId)
+
     record = zenodo.exportRecord(recordId)
+    
+    # make sure the necessary fields exist:
 
-    #record["metadata"].append("additional_descriptions: "+str(dlza_note))
-    if "additional_descriptions" not in record["metadata"]:
-        record["metadata"]["additional_descriptions"] = []
-    for dlza_note in [dlza_note for dlza_note in dlza_notes if dlza_note not in record["metadata"]["additional_descriptions"]]:
-        record["metadata"]["additional_descriptions"].append(dlza_note)
+    record["metadata"].setdefault("additional_descriptions", [])
+    record["metadata"].setdefault("related_identifiers", [])
 
-    print(record["metadata"]["additional_descriptions"])
+    # add note if it does not already exist
+    for note in dlza_notes:
+        if note not in record["metadata"]["additional_descriptions"]:
+            record["metadata"]["additional_descriptions"].append(note)
 
-    if "identifiers" not in record["metadata"]:
-        record["metadata"]["identifiers"] = []
-    for dlza_identifier in [dlza_identifier for dlza_identifier in dlza_identifiers if dlza_identifier not in record["metadata"]["identifiers"]]:
-        record["metadata"]["identifiers"].append(dlza_identifier)
+    # add related identifier if it does not already exist
+    for identifier in dlza_related_identifiers:
+        if identifier not in record["metadata"]["related_identifiers"]:
+            record["metadata"]["related_identifiers"].append(identifier)
 
-    print(record["metadata"]["identifiers"])
-        
+    # debugging: print pretty JSON of the metadata
+    #print(json.dumps(record["metadata"], indent=4, ensure_ascii=False))
 
+    # check if the record is owned by the LORY user (18299)
+    zenodo_user = record["parent"]["access"]["owned_by"]["user"]
+    if zenodo_user != "18299":
+        print("UPDATE RECORD not possible, not lory@zhbluzern.ch user : ", zenodo_user)
+        # write row to error file
+        with open("error_log.txt", "a") as error_file:
+            error_file.write(f"Row {index} - Record id: {recordId}: Not lory@zhbluzern.ch user: {zenodo_user}, update manually: {dlza_line} - {dlza_identifier}\n")
+        continue
 
-    print(record["metadata"])
-
+    # update the record with the new metadata
     zenodo.updateRecord(recordId, record)
-    zenodo.publishDraft(recordId)    
-    #break
+    time.sleep(1)  # wait for 1 second to avoid rate limiting
+
+    zenodo.publishDraft(recordId)
+    time.sleep(1)  # wait for 1 second to avoid rate limiting
+
+    updated_record = zenodo.getRecord(recordId)
+    if updated_record.get("status") == "published":
+        print("Record updated and published: ", recordId)
+    else:
+        print("Record not published, check draft mode: ", recordId)
+        with open("error_log.txt", "a") as error_file:
+            error_file.write(f"Row {index} - Record id: {recordId}: Record not published, check draft mode or update manually: {dlza_line} - {dlza_identifier}\n")
+
+print("All records processed.")            
