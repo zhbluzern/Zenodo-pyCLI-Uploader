@@ -117,7 +117,12 @@ class Invenio:
                 personOrOrg["person_or_org"]["family_name"] = namePart[1]
                 personOrOrg["person_or_org"]["given_name"] = namePart[0]               
             if affiliation != "":
-                personOrOrg["affiliations"] = [{"name":affiliation}]
+                if isinstance(affiliation, str):
+                    personOrOrg["affiliations"] = [{"name":affiliation}]
+                elif isinstance(affiliation, list):
+                    personOrOrg["affiliations"] = []
+                    for affiliation_str in affiliation:
+                        personOrOrg["affiliations"].append({"name":affiliation_str.strip()})
             if role != "":
                 personOrOrg["role"] = {"id": role }
 
