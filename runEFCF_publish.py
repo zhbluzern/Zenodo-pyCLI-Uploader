@@ -35,4 +35,5 @@ for index, row in df.iterrows():
      # ADD TO COMMUNITIES
     print(zenodo.addRectoCommunity(recId, {"communities": [{"id": "lara_conf_efcf"},{"id": "lara"}]}))
 
-df.to_excel("EFCF/published.xlsx", index=False, engine="openpyxl")
+timestamp = datetime.now().strftime("%Y-%m-%d-%H%M")
+df.to_excel(f"EFCF/published_{timestamp}.xlsx", index=False, engine="openpyxl")
