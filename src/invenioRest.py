@@ -16,7 +16,9 @@ class Invenio:
         self.ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
         self.API_URL = os.getenv("API_URL")
         self.BASE_URL = re.sub("api\/","",self.API_URL)
-        self.HEADERS = ({"Content-Type" : "application/json", "Authorization" : f"Bearer {self.ACCESS_TOKEN}"})
+        self.HEADERS = ({"Content-Type" : "application/json",
+                         "Accept" : "application/vnd.inveniordm.v1+json",
+                         "Authorization" : f"Bearer {self.ACCESS_TOKEN}"})
         
         self.recordSchema = Invenio.resetRecord(self)
         self.recordId = recordId
@@ -68,8 +70,9 @@ class Invenio:
         # print(apiUrl)
         headers = self.HEADERS
         headers["Content-Type"] = "application/vnd.inveniordm.v1+json"
-        r = requests.post(url=apiUrl, headers=self.HEADERS)
-        print(r.status_code)
+        headers["Accept"] = "application/vnd.inveniordm.v1+json"
+        r = requests.post(url=apiUrl, headers=headers)
+        #print(r.status_code)
         # print(r.json())
         return r.json()
 
