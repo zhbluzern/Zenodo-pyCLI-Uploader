@@ -11,16 +11,17 @@ from datetime import datetime
 # ****************************************************
 # Hinweise
 # 
-# Am 29.03.2025 wurden für das Journal Draft-Records angelegt
+# Am 29.03.2025 wurden für den Sammelband Draft-Records angelegt
 # Es fehlen folgende Metadaten:
 # * PublicationDate (aus XLS oder fix implementieren)
 # * Communities
 # * ggf. Page-Range im imprimt:imprint
 # 
-
+# Am 26.08.2025 erfolgte eine Korrektur der Metadaten (tlw. Personen, tlw. Titel, Rechte)
+# und File-Upload. 
 
 #Read a Metadata-Excel-File
-data = pd.read_excel(r'Files/Sammelband-ZLLF-Raster.xlsx',  header=0)
+data = pd.read_excel(r'Files/Sammelband-ZLLF-Raster_DOI_20250826.xlsx',  header=0)
 df = pd.DataFrame(data)
 initColumns = df.columns
 #Define new Columns with explicit dtype for correct export
@@ -30,20 +31,26 @@ print(df.head())
 
 #Fetch Containing Book Record
 zenodo = InvenioRest.Invenio()
-book = zenodo.getDraft("15065419")
-print(book["metadata"]["creators"])
-print(book["metadata"]["title"])
-print(book["metadata"]["resource_type"])
-print(book["metadata"]["license"])
-print(book["doi"])
+book = zenodo.exportRecord("15065419")
+# print(book["metadata"]["creators"])
+# print(book["metadata"]["title"])
+# print(book["metadata"]["resource_type"])
+# print(book["metadata"]["rights"])
+
 
 for index, row in df.iterrows():
 
-    #create Zenodo-Record
+    #Initialize Zenodo-Classes
     zenodo = InvenioRest.Invenio()
-    record = zenodo.recordSchema
     zenSearch = ZenodoSearch.ZenodoSearch()
 
+    # create Zenodo-Record
+    # record = zenodo.recordSchema
+    # get existing Draft Recod for Editing
+    record = zenodo.editRecord(row["ZenodoId"])
+    record = zenodo.exportRecord(row["ZenodoId"])
+    print(record)
+    
     creators = []
     creatorsAffil = []
     languages = []
@@ -63,34 +70,36 @@ for index, row in df.iterrows():
                 #     languages.append(value)                
                 # elif col.startswith("Relation_"):
                 #     relatedUrl.append(value)
-    print(tags)
-    print(creators)
-    print(creatorsAffil)
+    # print(tags)
+    # print(creators)
+    # print(creatorsAffil)
 
+    record["metadata"]["creators"] = []
     for i, creator in enumerate([creator for creator in creators if pd.notna(creator)]):
         record["metadata"]["creators"].append(zenodo.setPersonOrOrg(name=creator,splitChar=",", affiliation=creatorsAffil[i], familyNameFirst=True))
 
-    record["metadata"]["contributors"] = []
-    for i, contributor in enumerate(book["metadata"]["creators"]):
-        print(contributor["name"])
-        if contributor.get("orcid"):
-            record["metadata"]["contributors"].append(zenodo.setPersonOrOrg(contributor["name"], affiliation=contributor["affiliation"],
-                                                                        splitChar=",", role="editor", familyNameFirst=True,
-                                                                        persId=contributor["orcid"],persIdScheme="orcid"))
-        else:
-            record["metadata"]["contributors"].append(zenodo.setPersonOrOrg(contributor["name"], affiliation=contributor["affiliation"],
-                                                                        splitChar=",", role="editor", familyNameFirst=True))
+    # record["metadata"]["contributors"] = []
+    # for i, contributor in enumerate(book["metadata"]["creators"]):
+    #     print(contributor["name"])
+    #     if contributor.get("orcid"):
+    #         record["metadata"]["contributors"].append(zenodo.setPersonOrOrg(contributor["name"], affiliation=contributor["affiliation"],
+    #                                                                     splitChar=",", role="editor", familyNameFirst=True,
+    #                                                                     persId=contributor["orcid"],persIdScheme="orcid"))
+    #     else:
+    #         record["metadata"]["contributors"].append(zenodo.setPersonOrOrg(contributor["name"], affiliation=contributor["affiliation"],
+    #                                                                     splitChar=",", role="editor", familyNameFirst=True))
+    record["metadata"]["contributors"] = book["metadata"]["creators"]
 
-    record["metadata"]["title"]=row.Title
+    record["metadata"]["title"] = row.Title
     
     #publicationtype book-chapter
-    record["metadata"]["resource_type"] = {"id":"publication-section"}
+    # record["metadata"]["resource_type"] = {"id":"publication-section"}
 
+    record["metadata"]["rights"] = [{"id":row.Licence.strip()}]
     record.update({"custom_fields":{"imprint:imprint": {"title":book["metadata"]["title"], "place" : "Luzern", "pages":""}}})
     record["metadata"]["publisher"] = row.Publisher
-    record["metadata"]["rights"] = [{"id":row.Licence}]
     record["metadata"]["languages"] = [{"id":row.Languages}]
-    record["metadata"]["publication_date"] = "2025"
+    record["metadata"]["publication_date"] = "2025-08"
     subjects = []
     for tag in tags:
         subjects.append({"subject":tag})
@@ -98,12 +107,13 @@ for index, row in df.iterrows():
 
     relatedIdentifiers = []
     #for url in relatedUrl:
-    relatedIdentifiers.append({"identifier":"10.5281/zenodo.15065418", "scheme":"doi", "relation_type": {"id":"ispartof"}})
+    relatedIdentifiers.append({"identifier":"10.5281/zenodo.15065418", "scheme":"doi", "relation_type": {"id":"ispartof"}, "resource_type": {"id": "publication-book"}})
     record["metadata"]["related_identifiers"] = relatedIdentifiers
 
 
     print(record)
     
+     
     #Create the Draft
     # newRecord = zenodo.createDraft(record)
     # print(newRecord["id"])
@@ -114,18 +124,22 @@ for index, row in df.iterrows():
     newRecord = zenodo.updateRecord(row.ZenodoId,record)
     
     #Publish the Zenodo Record
-    # print(zenodo.publishDraft(row.ZenodoId))
+    print(zenodo.publishDraft(row.ZenodoId))
     
-    #UploadFiles
-    handleFiles.uploadFile(zenodo,[row.File],newRecord,"Files/ZLLF/")
-
+        
     #Add Communities
-    communities = row.Communities.replace('\n\n', '\n').split("\n")
+    communities = row["Communities"].replace('\n\n', '\n').split("\n")
     print(communities)
+    zenCommunities = {"communities":[]}
+    for community in communities:
+        if community != "":
+            zenCommunities["communities"].append({"id":community})
+    print(zenCommunities)
+    zenodo.addRectoCommunity(row.ZenodoId, zenCommunities)
     #zenodo.addRectoCommunity(row.ZenodoId{"communities":[{"id":"lory_hslu_dfk_bnl"}...
 
-    break
+    # break
 
 #print(df.head())
 currentDateStr = datetime.now().strftime("%Y%m%d")
-df.to_excel(f"Files/Sammelband_ZLLF_DOI_{currentDateStr}.xlsx", index=False, engine="openpyxl")
+df.to_excel(f"Files/Sammelband_ZLLF_DOI_Final_{currentDateStr}.xlsx", index=False, engine="openpyxl")

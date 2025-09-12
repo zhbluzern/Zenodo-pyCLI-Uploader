@@ -2,6 +2,8 @@
 __pycache__/
 test*
 hslu_sa/
+HSLU/
+hslu_datasets/
 Files/
 nlv/
 bnl/
