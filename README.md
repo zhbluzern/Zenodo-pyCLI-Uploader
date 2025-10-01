@@ -19,9 +19,7 @@ recordId = "{YOUR_REC_ID}"
 # ===================== Edit already published Records with Invenio-RDM-API =========
 zenodo = invenioRest.Invenio()
 ## Make a draft of the already published record
-zenodo.editRecord(recordId)
-## Export the published record and use that response for further metadata adjustments
-record = zenodo.exportRecord(recordId)
+record = zenodo.editRecord(recordId)
 ## Make your metadata adjustments
 record["metadata"]["title"] = record["metadata"]["title"]+" [new Update]"
 ## update the record with new data

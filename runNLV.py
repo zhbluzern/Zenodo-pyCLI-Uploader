@@ -5,12 +5,13 @@ import pandas as pd
 from datetime import datetime
 import re
 
-data = pd.read_excel(r'nlv/Findmittel_neu_20241120.xlsx')
+data = pd.read_excel(r'nlv/Test_Findmittel_202410_Zenodo_Update_Version_20250827.xlsx',dtype={'mmsID': str})
 df = pd.DataFrame(data)
 df = df.astype('string')
 
 alma = handleAlma.readAlma()
-#df = df.iloc[[6],:]
+df = df.iloc[32:34]
+print(df.head())
 
 for index, row in df.iterrows():
     if pd.notna(row.ZenodoId):
@@ -87,22 +88,21 @@ for index, row in df.iterrows():
         addDescription = f"Standort: {standort[0].text} ({standortDet[0].text}), Signatur: {signatur[0].text}"
         record["metadata"]["additional_descriptions"] = [{"description": addDescription, "type": { "id": "notes"}, "lang":{"id":"deu"}}]
         
-        print(record)
+        #print(record)
         
         #Create the Draft
         newRecord = zenodo.createDraft(record)
-        print(newRecord)
-        #break
+        #print(newRecord)
+
         #Handle the files
         listOfFiles = []
         listOfFiles.append(row.fileName)
-        print(listOfFiles)
-        handleFiles.uploadFile(zenodo,listOfFiles,newRecord,"nlv/Files")
+        handleFiles.uploadFile(zenodo,listOfFiles,newRecord["id"],"nlv/Files/")
         
         ### Publish the Zenodo Record
-        print(zenodo.publishDraft(newRecord["id"]))
+        zenodo.publishDraft(newRecord["id"])
         zenodo.addRectoCommunity(newRecord["id"],{"communities":[{"id":"lara_sosa_nlv"}]})
 
         df.at[index, "ZenodoId"] = str(newRecord["id"])
         #break
-df.to_excel("nlv/Findbuecher_202410_Zenodo_Update.xlsx", index=False, engine="openpyxl")
+df.to_excel("nlv/Findbuecher_202509_Zenodo_Update.xlsx", index=False, engine="openpyxl")

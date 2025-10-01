@@ -16,7 +16,10 @@ class Invenio:
         self.ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
         self.API_URL = os.getenv("API_URL")
         self.BASE_URL = re.sub("api\/","",self.API_URL)
-        self.HEADERS = ({"Content-Type" : "application/json", "Authorization" : f"Bearer {self.ACCESS_TOKEN}"})
+        self.HEADERS = ({"Content-Type" : "application/json",
+                         "Accept" : "application/vnd.inveniordm.v1+json",
+                         "Authorization" : f"Bearer {self.ACCESS_TOKEN}"})
+        
         self.recordSchema = Invenio.resetRecord(self)
         self.recordId = recordId
         # if self.recordId != "":
@@ -44,7 +47,8 @@ class Invenio:
        
     def startDraftFiles(self, recordId, data):
         apiUrl = f"{self.API_URL}records/{recordId}/draft/files"
-        print(data)
+        print(apiUrl)
+        #print(data)
         r = requests.post(url=apiUrl, headers=self.HEADERS, json=data)
         return r.json()
     
@@ -64,15 +68,21 @@ class Invenio:
     def editRecord(self, recordId):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
         # print(apiUrl)
-        r = requests.post(url=apiUrl, headers=self.HEADERS)
-        print(r.status_code)
+        headers = self.HEADERS
+        headers["Content-Type"] = "application/vnd.inveniordm.v1+json"
+        headers["Accept"] = "application/vnd.inveniordm.v1+json"
+        r = requests.post(url=apiUrl, headers=headers)
+        #print(r.status_code)
         # print(r.json())
         return r.json()
 
     def updateRecord(self, recordId, data):
         apiUrl = f"{self.API_URL}records/{recordId}/draft"
         print(apiUrl)
-        r = requests.put(url=apiUrl, headers=self.HEADERS, data=json.dumps(data))
+        headers = self.HEADERS
+        headers["Content-Type"] = "application/json"
+        r = requests.put(url=apiUrl, headers=headers, data=json.dumps(data))
+        print(r.json())
         return r.json()
             
     def getDraft(self, recordId=""):
@@ -99,7 +109,7 @@ class Invenio:
     # Export the Record in several formats as available in the UI (e.g. json, json-ld, datacite-json etc.)
     def exportRecord(self, recordId, format="json"):
         apiUrl = f"{self.BASE_URL}records/{recordId}/export/{format}"
-        #print (apiUrl)
+        print (apiUrl)
         r = requests.get(url=apiUrl, headers=self.HEADERS)
         record = r.json()
         # #Remove media_files in Old Data to avoid validation error
@@ -147,10 +157,12 @@ class Invenio:
     
     def addRectoCommunity(self, recordId, data):
         url = f"{self.API_URL}records/{recordId}/communities"
-        print(url)
+        #print(url)
         headers = {"Content-Type": "application/json"}
         r = requests.post(url, params={'access_token': self.ACCESS_TOKEN}, data=json.dumps(data), headers=headers)
+        #print(r.json())
         return r
+
     
     def removeRecFromCommunity(self, recordId, data):
         url = f"{self.API_URL}records/{recordId}/communities"

@@ -2,14 +2,17 @@
 __pycache__/
 test*
 hslu_sa/
-RoRa/
 EFCF/
+HSLU/
+hslu_datasets/
 Files/
 nlv/
 bnl/
-.vscode/
 
+.vscode/
 *.xlsx
+
+RoRa/
 runRoRa_draft.py
 runRoRa_publish.py
 runRoRa_update.py
