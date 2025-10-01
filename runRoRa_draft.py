@@ -5,7 +5,6 @@ import src.handleFiles as handleFiles
 import src.handleInvenio as handleInvenio
 from datetime import datetime
 
-
 import json
 import re
 from datetime import datetime
@@ -36,7 +35,7 @@ for index, row in df.iterrows():
     additionalDescriptions = []
     additionalDescriptions.append(
         {
-            "description": "<p>Contact authors: <a href='https://www.EFCF.com/ContactRequest' target='_blank' >www.EFCF.com/ContactRequest</a></p><p>Library: <a href='https://www.efcf.com/Library' target='_blank' >www.efcf.com/Library</a>&nbsp;</p>",
+            "description": "<p>Contact authors: <a href='https://www.EFCF.com/ContactRequest' target='_blank' >www.EFCF.com/ContactRequest</a></p><p>Library: <a href='https://www.efcf.com/Library' target='_blank' >www.EFCF.com/Library</a></p>",
             "type": {
             "id": "notes",
             "title": {

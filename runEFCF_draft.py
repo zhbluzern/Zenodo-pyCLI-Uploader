@@ -27,15 +27,16 @@ for index, row in df.iterrows():
 
     # TITLE, DESCRIPTION, LANGUAGE
     record["metadata"]["title"] = row["Title"]
-    record["metadata"]["description"] = row["Description / Abstract"]
+    record["metadata"]["description"] = row["Description / Abstract"].strip().replace("\n", "<br>")
     record["metadata"]["languages"] = [{"id":row["Languages"].strip()}]
+  #    record["metadata"]["languages"] = [{"id":"eng"}]
     
         
     #  ADDITIONAL NOTES / DESCRIPTIONS
     additionalDescriptions = []
     additionalDescriptions.append(
         {
-            "description": "<p>Contact authors: <a href='https://www.EFCF.com/ContactRequest' target='_blank' >www.EFCF.com/ContactRequest</a></p><p>Library: <a href='https://www.efcf.com/Library' target='_blank' >www.efcf.com/Library</a></p>",
+            "description": "<p>Contact authors: <a href='https://www.efcf.com/ContactRequest' target='_blank' >www.EFCF.com/ContactRequest</a></p><p>Library: <a href='https://www.efcf.com/Library' target='_blank' >www.EFCF.com/Library</a></p>",
             "type": {
             "id": "notes",
             "title": {
@@ -129,7 +130,7 @@ for index, row in df.iterrows():
             name=creatorName,
             splitChar=";",
             familyNameFirst=False,
-            affiliation=creator["affiliation"]
+            affiliation=creator["affiliation"].split(";"),
     ))
         
     # creatorName = row['Creator_Author_Name_01'] +";"+ row['Creator_Author_FamilyName_01']
@@ -160,7 +161,7 @@ for index, row in df.iterrows():
             name=contributorName,
             splitChar=";",
             familyNameFirst=False,
-            affiliation=contributor["affiliation"],
+            affiliation=contributor["affiliation"].split(";"),
             role=contributor["role"]        
     ))
     

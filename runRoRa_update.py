@@ -39,41 +39,45 @@ for index, row in df.iterrows():
     
     zenodo = InvenioRest.Invenio()
     recordId = row["ZenodoId"]
-    recordId = "311734"
+    recordId = "328413"
     
     ## For published records --->
-    zenodo.editRecord(recordId)
-    record = zenodo.exportRecord(recordId)
+    # zenodo.editRecord(recordId)
+   # record = zenodo.exportRecord(recordId)
     
-    #record2 = zenodo.getDraft(recordId)
+    record2 = zenodo.getDraft(recordId)
+    
+    record3 = zenodo.getRecord("321751")
+    
+    print(record3)
     #record3 = zenodo.getRecord(recordId)
     
     #print(record3)
     
     # UPDATE DRAFT
     
-    timestamp = datetime.now().strftime("%Y-%m-%d-%H%M")
-    record["metadata"]["title"] = "foobar-"+timestamp
+    #timestamp = datetime.now().strftime("%Y-%m-%d-%H%M")
+    #record["metadata"]["title"] = "foobar-"+timestamp
     
-    additionalDescriptions = []
-    additionalDescriptions.append(
-        {
-            "description": "<p>Contact authors: <a href='https://www.EFCF.com/ContactRequest' target='_blank' >www.EFCF.com/ContactRequest</a></p><p>Library: <a href='https://www.efcf.com/Library' target='_blank' >www.efcf.com/Library</a>&nbsp;</p>",
-            "type": {
-            "id": "notes",
-            "title": {
-                "de": "Anmerkungen",
-                "en": "Notes"
-                }
-            }
-        }
-    )
+    # additionalDescriptions = []
+    # additionalDescriptions.append(
+    #     {
+    #         "description": "<p>Contact authors: <a href='https://www.EFCF.com/ContactRequest' target='_blank' >www.EFCF.com/ContactRequest</a></p><p>Library: <a href='https://www.efcf.com/Library' target='_blank' >www.efcf.com/Library</a>&nbsp;</p>",
+    #         "type": {
+    #         "id": "notes",
+    #         "title": {
+    #             "de": "Anmerkungen",
+    #             "en": "Notes"
+    #             }
+    #         }
+    #     }
+    # )
     
-    record["metadata"]["additional_descriptions"] = additionalDescriptions
+    # record["metadata"]["additional_descriptions"] = additionalDescriptions
     
        
     
-    zenodo.updateRecord(recordId, record)
+    # zenodo.updateRecord(recordId, record)
 
     # <---
     
