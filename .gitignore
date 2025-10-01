@@ -8,8 +8,10 @@ Files/
 nlv/
 bnl/
 .vscode/
+
 *.xlsx
 runRoRa_draft.py
 runRoRa_publish.py
 runRoRa_update.py
 runRoRa_upload.py
+roRaTest.py
