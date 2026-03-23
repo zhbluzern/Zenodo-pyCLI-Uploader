@@ -12,10 +12,8 @@ bnl/
 .vscode/
 *.xlsx
 
-RoRa/
-runRoRa_draft.py
-runRoRa_publish.py
-runRoRa_update.py
-runRoRa_upload.py
-roRaTest.py
+HSLU/
+EFCF/
+PH/
+
 error_log-lara.txt
