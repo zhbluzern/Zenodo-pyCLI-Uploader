@@ -12,7 +12,8 @@ bnl/
 .vscode/
 *.xlsx
 
-HSLU/
+HSLU-TA/
+HSLU-DK/
 EFCF/
 PH/
 
