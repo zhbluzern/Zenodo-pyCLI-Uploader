@@ -10,7 +10,7 @@ import time
 
 # Read a Metadata-Excel-File into a DataFrame
 
-input_file = 'lory_zhb_inventory.xlsx'
+input_file = '<filename>_inventory.xlsx'
 data = pd.read_excel(input_file)
 df = pd.DataFrame(data)
 initColumns = df.columns
